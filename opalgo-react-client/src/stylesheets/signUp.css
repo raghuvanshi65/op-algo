@@ -1,0 +1,10 @@
+.SignUp {
+    background-color: #222222;
+    color: white;
+}
+
+.SignUp .header-content img{
+    display: flex;
+    margin-left:auto ;
+    margin-right: auto;
+}
