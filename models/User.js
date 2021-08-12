@@ -55,17 +55,17 @@ const userSchema = new mongoose.Schema(
       type: Buffer,
       reqiured: false,
     },
-    filename:{
-        type : String,
-        required : false
-    } ,
+    filename: {
+      type: String,
+      required: false,
+    },
     platform: [
       {
         platform: {
           type: String,
           reqiured: false,
         },
-        username: {
+        url: {
           type: String,
           reqiured: false,
         },
@@ -75,14 +75,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       reqiured: false,
     },
-    languages: [
-      {
-        name: {
-          type: String,
-          reqiured: false,
-        },
-      },
-    ],
+    languages: {
+      type: Array,
+      required: false,
+    },
   },
   { timestamps: true },
 )

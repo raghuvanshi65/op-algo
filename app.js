@@ -5,6 +5,7 @@ const connectDB = require('./config/db')
 const AuthRouter = require('./routes/auth.route')
 const userRouter = require('./routes/user.route')
 const cors = require('cors')
+const formidableMiddleware = require('express-formidable')
 
 
 dotenv.config({
@@ -17,10 +18,14 @@ const PORT = process.env.SERVER_PORT || 8080
 connectDB()
 
 app.use(express.json())
+app.use(express.urlencoded({
+    extended : true
+}))
+app.use(formidableMiddleware());
 app.use(cors())
 
 app.use('/auth/', AuthRouter)
-app.use('/user', userRouter)
+app.use('/user/', userRouter)
 
 if (process.env.NODE_ENV === 'development') {
   app.use(
