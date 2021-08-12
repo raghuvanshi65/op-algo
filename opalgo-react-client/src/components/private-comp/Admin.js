@@ -1,6 +1,6 @@
 import React from 'react'
 import { Redirect } from 'react-router-dom'
-import { isAuth, authenticate } from '../helpers/auth'
+import { isAuth, authenticate } from '../../helpers/auth'
 
 const Admin = () => {
     return (

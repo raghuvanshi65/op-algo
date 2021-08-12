@@ -1,9 +1,9 @@
 import React, { useState, useReducer } from 'react'
-import '../stylesheets/publicPage.css'
+import '../../stylesheets/publicPage.css'
 import SignIn from './SignIn'
 import SignUp from './SignUp'
 import Forgot from './Forgot'
-import Front from '../assets/25332.jpg'
+import Front from '../../assets/25332.jpg'
 import { motion } from 'framer-motion'
 
 const PublicPage = ({ history }) => {

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import Logo from '../assets/O2.svg'
-import { authenticate, isAuth } from '../helpers/auth'
+import Logo from '../../assets/25332.jpg'
+import { authenticate, isAuth } from '../../helpers/auth'
 import { Link, Redirect } from 'react-router-dom'
 import jwt from 'jsonwebtoken'
 import { Button, notification, Space } from 'antd'
 import { motion } from 'framer-motion'
-import '../stylesheets/activation.css'
+import '../../stylesheets/activation.css'
+
+import { successNotify, errorNotify } from '../../helpers/notify'
 
 const initialFormData = {
   name: '',
@@ -15,24 +17,7 @@ const initialFormData = {
 }
 
 const Activation = (props) => {
-  let config
   const [formData, setFormData] = useState(initialFormData)
-
-  const successNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'success',
-    })
-  }
-
-  const errorNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'error',
-    })
-  }
 
   useEffect(() => {
     let token, name
@@ -63,6 +48,7 @@ const Activation = (props) => {
       })
       .catch((err) => {
         console.log(err)
+        console.log(err.response.data);
         errorNotify(`Not Successful`, err.response.data.message)
       })
   }

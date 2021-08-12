@@ -2,8 +2,10 @@ const express = require('express')
 const dotenv = require('dotenv')
 const morgan = require('morgan')
 const connectDB = require('./config/db')
-const UserRouter = require('./routes/auth.route')
+const AuthRouter = require('./routes/auth.route')
+const userRouter = require('./routes/user.route')
 const cors = require('cors')
+
 
 dotenv.config({
   path: './config/config.env',
@@ -15,13 +17,10 @@ const PORT = process.env.SERVER_PORT || 8080
 connectDB()
 
 app.use(express.json())
-app.use(
-  cors({
-    origin: '*',
-  }),
-)
+app.use(cors())
 
-app.use('/auth/', UserRouter)
+app.use('/auth/', AuthRouter)
+app.use('/user', userRouter)
 
 if (process.env.NODE_ENV === 'development') {
   app.use(

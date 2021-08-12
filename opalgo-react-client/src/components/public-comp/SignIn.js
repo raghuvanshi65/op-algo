@@ -1,12 +1,19 @@
-import React, { useState } from 'react'
-import Logo from '../assets/O2.svg'
-import '../stylesheets/signIn.css'
+import React, { useState , useContext } from 'react'
+import Logo from '../../assets/O2.svg'
+import '../../stylesheets/signIn.css'
 import { motion } from 'framer-motion'
 import { Button, notification, Space } from 'antd'
-import { SmileOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import {
+  SmileOutlined,
+  CloseCircleOutlined,
+  GoogleOutlined,
+} from '@ant-design/icons'
 import axios from 'axios'
-import { Redirect , useHistory } from 'react-router-dom'
-import { authenticate, isAuth } from '../helpers/auth'
+import { Redirect, useHistory } from 'react-router-dom'
+import { authenticate, isAuth } from '../../helpers/auth'
+import { GoogleLogin } from 'react-google-login'
+
+import { successNotify, errorNotify } from '../../helpers/notify'
 
 const initialFormData = {
   email: '',
@@ -14,31 +21,43 @@ const initialFormData = {
 }
 
 const SignIn = ({ toggler }) => {
+  let history = useHistory()
+
   const [formData, setFormData] = useState(initialFormData)
   const { email, password } = formData
-              let history = useHistory()
-
-  const successNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'success',
-    })
-  }
-
-  const errorNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'error',
-    })
-  }
 
   const handleChange = (field, e) => {
     setFormData((prev) => ({
       ...formData,
       [field]: e.target.value,
     }))
+  }
+
+  const responseGoogle = (response) => {
+    console.log('response from google')
+    if (response.tokenId) sendGoogleToken(response.tokenId)
+  }
+
+  const sendGoogleToken = (tokenId) => {
+    axios
+      .post(`http://localhost:5000/auth/googleLogin`, {
+        idToken: tokenId,
+      })
+      .then((res) => {
+        console.log(res)
+        informParent(res)
+      })
+      .catch((err) => {
+        errorNotify(`Not Successful`, err.response.data.message)
+      })
+  }
+
+  const informParent = (res) => {
+    authenticate(res, () => {
+      const auth = isAuth()
+      if (auth && auth.Role === 'Admin') history.push('/admin')
+      else history.push('/home')
+    })
   }
 
   const handleSubmit = (e) => {
@@ -80,7 +99,13 @@ const SignIn = ({ toggler }) => {
 
   return (
     <>
-      {isAuth() ? isAuth().Role === 'admin' ? <Redirect exact to="/home" /> : <Redirect exact to="/home" /> : null}
+      {isAuth() ? (
+        isAuth().Role === 'Admin' ? (
+          <Redirect exact to="/admin" />
+        ) : (
+          <Redirect exact to="/home" />
+        )
+      ) : null}
       <div className="SignIn">
         <div className="body">
           <div className="header-content">
@@ -135,18 +160,44 @@ const SignIn = ({ toggler }) => {
             </div>
             <div className="to-Toggle">
               Don't Have an account ?&nbsp;
-              <span className="act-as-link" onClick={()=>toggler(2)}>
+              <span className="act-as-link" onClick={() => toggler(2)}>
                 Sign Up
               </span>
             </div>
             <div className="">
-            Forgot Password ?&nbsp;
-              <span className="act-as-link" onClick={()=>toggler(3)}>
+              Forgot Password ?&nbsp;
+              <span className="act-as-link" onClick={() => toggler(3)}>
                 Click Here
               </span>
             </div>
           </form>
           <hr />
+          <div className="oauth">
+            <GoogleLogin
+              theme="dark"
+              clientId={`${process.env.REACT_APP_GOOGLE_CLIENT}`}
+              onSuccess={responseGoogle}
+              onFailure={responseGoogle}
+              cookiePolicy={'single_host_origin'}
+              render={(renderProps) => (
+                <motion.button
+                  whileHover={{
+                    scale: 1.02,
+                    transition: { duration: 0.2 },
+                  }}
+                  whileTap={{
+                    scale: 1,
+                    transition: { duration: 0 },
+                  }}
+                  onClick={renderProps.onClick}
+                  disabled={renderProps.disabled}
+                  className="google-oauth"
+                >
+                  <GoogleOutlined /> {'   '} Sign In With Google
+                </motion.button>
+              )}
+            ></GoogleLogin>
+          </div>
         </div>
       </div>
     </>

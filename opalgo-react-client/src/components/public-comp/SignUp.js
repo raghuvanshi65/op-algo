@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
-import '../stylesheets/signUp.css'
-import Logo from '../assets/O2.svg'
+import '../../stylesheets/signUp.css'
+import Logo from '../../assets/O2.svg'
 import { motion } from 'framer-motion'
-import { Button, notification, Space } from 'antd'
 import { SmileOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import { authenticate, isAuth } from '../helpers/auth'
+import { authenticate, isAuth } from '../../helpers/auth'
 import { Redirect } from 'react-router-dom'
 import axios from 'axios'
+
+import { successNotify, errorNotify } from '../../helpers/notify'
 
 const initialFormData = {
   name: '',
@@ -18,22 +19,6 @@ const initialFormData = {
 const SignUp = ({ toggler }) => {
   const [formData, setFormData] = useState(initialFormData)
   const { name, email, password, confirmPassword } = formData
-
-  const successNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'success',
-    })
-  }
-
-  const errorNotify = (message, description) => {
-    notification.open({
-      message: message,
-      description: description,
-      type: 'error',
-    })
-  }
 
   const handleChange = (field, e) => {
     setFormData((prev) => ({

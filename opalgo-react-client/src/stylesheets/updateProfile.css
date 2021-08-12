@@ -1,0 +1,57 @@
+.UpdateProfile {
+    min-height: 100vh;
+    min-width: 100%;
+    background-color: #222222;
+    margin: 0;
+    padding: 0;
+}
+
+.UpdateProfile .form-div{
+    margin: 2%;
+}
+
+.UpdateProfile h2{
+    color: white;
+    margin-left: 3%; 
+    background-color: blue;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.UpdateProfile h4{
+    color: white;
+    margin-left: 1%;   
+}
+
+.UpdateProfile .updateProfile-header img {
+    display: flex;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.UpdateProfile .updateProfile-form{
+    padding: 2%;
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+}
+
+.UpdateProfile .updateProfile-pic{
+    width: 100%;
+    height: 100%;
+    background-color: aliceblue;
+    grid-column: 1/3;
+    position: static;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 30rem;
+}
+
+.UpdateProfile .updateProfile-formdata{
+    padding: 0%;
+    width: 100%;
+    height: 100%;
+    grid-column: 3/-1;
+}

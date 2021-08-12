@@ -5,13 +5,12 @@ const bcrypt = require('bcryptjs')
 const jwt = require('express-jwt')
 const jsonwebtoken = require('jsonwebtoken')
 
-
 const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
       trim: true,
-      required: true,
+      reqiured: true,
       unique: true,
       lowercase: true,
     },
@@ -23,7 +22,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       trim: true,
-      required: true,
+      reqiured: true,
     },
     Role: {
       type: String,
@@ -32,17 +31,58 @@ const userSchema = new mongoose.Schema(
     logInfo: {
       count: {
         type: Number,
-        default: 1,
+        default: 0,
       },
       currentIP: {
         type: String,
-        required: true,
+        reqiured: false,
+      },
+      profileUpdated: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
-    resetPasswordLink: {
-      data: String,
-      default: '',
+    username: {
+      type: String,
+      reqiured: false,
     },
+    code: {
+      type: Number,
+      reqiured: false,
+    },
+    profile: {
+      type: Buffer,
+      reqiured: false,
+    },
+    filename:{
+        type : String,
+        required : false
+    } ,
+    platform: [
+      {
+        platform: {
+          type: String,
+          reqiured: false,
+        },
+        username: {
+          type: String,
+          reqiured: false,
+        },
+      },
+    ],
+    bio: {
+      type: String,
+      reqiured: false,
+    },
+    languages: [
+      {
+        name: {
+          type: String,
+          reqiured: false,
+        },
+      },
+    ],
   },
   { timestamps: true },
 )
@@ -51,7 +91,6 @@ userSchema.pre('save', async function (next) {
   const user = this
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 4)
-    user.logInfo.count = 1
   }
   next()
 })
@@ -70,11 +109,12 @@ userSchema.statics.getByCredentials = async function (email, password, ip) {
   if (!isMatch) throw new Error('Incorrect credentials')
 
   user.logInfo.currentIP = ip
-  await user.save();
+  user.logInfo.count = user.logInfo.count + 1
+  await user.save()
   return user
 }
 
-userSchema.methods.generateUserAuthToken = function (expires) {
+userSchema.methods.generateUserAuthToken = async function (expires) {
   const user = this
   const token = jsonwebtoken.sign(
     {
