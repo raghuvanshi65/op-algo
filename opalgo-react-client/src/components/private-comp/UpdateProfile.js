@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react'
 import '../../stylesheets/updateProfile.css'
 
-import { Redirect } from 'react-router-dom'
+import { Redirect, useHistory } from 'react-router-dom'
 import { authenticate, isAuth } from '../../helpers/auth'
 import Logo from '../../assets/O2.svg'
 import { motion } from 'framer-motion'
-import { Tooltip, Upload } from 'antd'
+import { Upload } from 'antd'
 import ImgCrop from 'antd-img-crop'
 import axios from 'axios'
 import { errorNotify, successNotify } from '../../helpers/notify'
@@ -20,8 +20,8 @@ const redirectFunction = (data) => {
 }
 
 export const UpdateProfile = () => {
+  let history = useHistory()
   const { storedUser, reloadStoredUser, token } = useContext(GlobalAuthContext)
-  console.log(storedUser)
   const [formData, setFormData] = useState({ ...storedUser })
   const [platform, setPlatform] = useState(
     storedUser.platform ? storedUser.platform : [],
@@ -118,29 +118,26 @@ export const UpdateProfile = () => {
 
   const uploadImage = () => {
     if (file) {
-      let formData = new FormData()
       const imageData = document.getElementsByTagName('img')[1].src
-      formData.append('filename', imageData)
-
-      console.log(formData.get('filename'))
-
-      console.log(token)
 
       axios({
         method: 'post',
         url: 'http://localhost:5000/user/upload',
-        data: formData,
+        data: { filename: imageData },
         headers: {
-          'Content-Type': 'multipart/form-data',
           Accept: 'application/json',
-          type: 'formData',
           Authorization: `Bearer ${token.token}`,
         },
       })
         .then((res) => {
-          console.log(res.data.data.message)
+          if (res.data.accept)
+            return successNotify('Successfullu updated', res.data.message.message)
+          else return errorNotify('Not Successful', res.data.message.message)
         })
-        .catch((err) => {})
+        .catch((err) => {
+          console.log(err)
+          errorNotify('Not Successful')
+        })
     } else {
       errorNotify('Not Succesful', 'Please Choose a file to Upload')
     }
@@ -163,26 +160,52 @@ export const UpdateProfile = () => {
     }))
 
     if (
-      formData.code === 0 || !formData.code ||
-      formData.username === '' || !formData.username ||
-      !platform || checkEmptyFields(platform) ||
-      !languages || checkEmptyFields(languages)
+      formData.code === 0 ||
+      !formData.code ||
+      formData.username === '' ||
+      !formData.username ||
+      !platform ||
+      checkEmptyFields(platform) ||
+      !languages ||
+      checkEmptyFields(languages)
     )
-      return errorNotify('Not SuccesFul', 'Please Fill All Fields that are required *')
-
-    console.log('fgvhbnjm')
+      return errorNotify(
+        'Not SuccesFul',
+        'Please Fill All Fields that are required *',
+      )
 
     axios({
       method: 'post',
-      url: 'http://localhost:5000/user/update',
+      url: 'http://localhost:5000/user/updateinfo',
       data: formData,
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${token.token}`,
       },
-    }).then((res) => {
-    }).catch(err=>{
-        console.log(err);
+    })
+      .then(async (res) => {
+        if (!res.data)
+          return errorNotify(
+            'Not Succesful',
+            'Internal Server Error , Wait for Some time',
+          )
+        if (res.data.accept) {
+          await informParent(res)
+          return successNotify('Successfullu updated', res.data.message)
+        }
+        return errorNotify('Not Successful', res.data.accept)
+      })
+      .catch((err) => {
+        console.log(err)
+        errorNotify('Not succesful', err.response)
+      })
+  }
+
+  const informParent = async (res) => {
+    await authenticate(res, () => {
+      const auth = isAuth()
+      if (auth && auth.Role === 'Admin') history.push('/admin')
+      else history.push('/home')
     })
   }
 
@@ -208,9 +231,8 @@ export const UpdateProfile = () => {
                 grid
                 shape="round"
                 fillColor="#222222"
-                rotate={true}
                 modalOk="Upload"
-                modalTitle="Crop Before Uploading"
+                modalTitle="Crop Image"
               >
                 <Upload
                   id="profile-image"
@@ -313,8 +335,6 @@ export const UpdateProfile = () => {
                 </button>
                 <div id="profile-list">
                   {platform.map((obj, index) => {
-                    console.log(index)
-                    console.log(platform[index])
                     return (
                       <div className="profiles" key={index}>
                         <div>
@@ -377,8 +397,6 @@ export const UpdateProfile = () => {
                 <br />
                 <div id="language-list">
                   {languages.map((obj, index) => {
-                    console.log(index)
-                    console.log(languages[index])
                     return (
                       <div className="language" key={index}>
                         <div>

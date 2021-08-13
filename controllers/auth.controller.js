@@ -90,8 +90,6 @@ const activationController = async (req, res) => {
     try {
       const token = authHeader.replace('Bearer ', '')
 
-      console.log(token)
-
       const decoded = await jwt.verify(
         token,
         process.env.JWT_ACCOUNT_ACTIVATION,
@@ -172,8 +170,6 @@ const authorize = async (req, res) => {
         token,
         process.env.JWT_ACCOUNT_ACTIVATION,
       )
-
-      console.log(decoded)
       return res.status(200).json({
         message: true,
         body: 'Look At the console',

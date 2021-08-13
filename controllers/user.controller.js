@@ -10,8 +10,7 @@ const {
 } = require('../helpers/customResponses')
 
 const uploadProfilePic = async (req, res) => {
-  console.log()
-  let strArr = req.fields.filename.split(',')
+  let strArr = req.body.filename.split(',')
   let buffer = new Buffer(strArr[1], 'base64')
   let filename =
     Date.now().toString() + '' + strArr[0].split('/')[1].split(';')[0]
@@ -46,30 +45,53 @@ const getProfilePic = async (req, res) => {
 
 const updateUserData = async (req, res) => {
   try {
-    console.log('fghbjnmk,')
-    if (req.body === undefined)
-      return res
-        .status(400)
-        .json(customMessage(false, 'Bad request body is not defined'))
-
-    const { _id, email, name, username, bio, code, plaform, languages } = req.body
+    const {
+      email,
+      name,
+      username,
+      bio,
+      code,
+      platform,
+      languages,
+    } = req.body
     if (username === undefined || code === undefined || !platform || !languages)
       return res
         .status(400)
         .json(customMessage(false, 'Please Satisy Validations'))
 
     let user = req.user
-    const user1 = await UserModel.findById(_id)
-    console.log(user1)
+    let user1 = await UserModel.findById(user._id)
+    user1.username = username
+    user1.code = code
+    user1.bio = bio
+    user1.platform = platform
+    user1.languages = languages
+    user1.logInfo.profileUpdated = true;
+
     if (!user) return res.status(500).json(internalServerError())
     else {
       await user1.save()
-      return res
-        .status(200)
-        .json(customMessage(true, `user with ${email} updated`))
+      console.log
+      return res.status(200).json(
+        customMessage(true, `user with ${email} updated` , {
+          token: req.token,
+          user: {
+            _id : user._id,
+            email,
+            name,
+            username,
+            code,
+            bio,
+            platform,
+            languages,
+            logInfo : user1.logInfo
+          },
+        }),
+      )
     }
   } catch (error) {
-    return res.status(500).json(internalServerError())
+    console.log(error)
+    return res.status(500).json(internalServerError)
   }
 }
 

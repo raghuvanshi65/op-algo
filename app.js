@@ -21,7 +21,7 @@ app.use(express.json())
 app.use(express.urlencoded({
     extended : true
 }))
-app.use(formidableMiddleware());
+// app.use(formidableMiddleware());
 app.use(cors())
 
 app.use('/auth/', AuthRouter)
